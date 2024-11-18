@@ -693,6 +693,10 @@ class Utilities {
 
         return { collision, overlap: overlapX * overlapY }; // Trả về đối tượng chứa thông tin về cạnh va chạm
     }
+
+    distance(obj1, obj2) {
+        return Math.sqrt(Math.pow(obj1.x - obj2.x, 2) + Math.pow(obj1.y - obj2.y, 2));
+    }
 }
 
 class Game {
@@ -1346,18 +1350,24 @@ class Game {
         }
         for (var i = 0; i < this.tanks.length; i++) {
             if (this.tanks[i].idTank === "BO") {
-                if (Math.random() > 0.97) {
-                    if (Math.random() > 0.9) {
-                        this.controlTank(this.tanks[i].idTank, "aim", 0);
-                    }
-                    else{
-                        this.controlTank(this.tanks[i].idTank, "specialAim", 0);
-                    }
+                const tankPlayer = this.tanks.find((tank) => tank.idTank !== "BO");
+                if (this.utilities.distance(this.tanks[i], tankPlayer) < 100) {
+                    this.controlTank(this.tanks[i].idTank, "specialAim", 0);
                 }
                 else{
-                    const { bestMove, bestScore } = this.minimax(this.tanks, depth, true, -Infinity, Infinity, this.possibleMoves);
-                    if (Math.random() > 0.99) console.log(bestMove, bestScore);
-                    this.controlTank(this.tanks[i].idTank, bestMove, 0);
+                    if (Math.random() > 0.97) {
+                        if (Math.random() > 0.9) {
+                            this.controlTank(this.tanks[i].idTank, "aim", 0);
+                        }
+                        else{
+                            this.controlTank(this.tanks[i].idTank, "specialAim", 0);
+                        }
+                    }
+                    else{
+                        const { bestMove, bestScore } = this.minimax(this.tanks, depth, true, -Infinity, Infinity, this.possibleMoves);
+                        if (Math.random() > 0.99) console.log(bestMove, bestScore);
+                        this.controlTank(this.tanks[i].idTank, bestMove, 0);
+                    }
                 }
             }
         }
