@@ -1338,7 +1338,7 @@ class Game {
         }
         for (var i = 0; i < this.tanks.length; i++) {
             if (this.tanks[i].idTank === "BO") {
-                if (Math.random() > 0.99) {
+                if (Math.random() > 0.95) {
                     this.controlTank(this.tanks[i].idTank, "aim", 0);
                 }
                 else{
