@@ -54,7 +54,7 @@ class Tank {
             Nếu vượt quá thì sẽ không tạo thêm viên đạn nào nữa
         */
 
-        const MAX_BULLETS = 10; // Số lượng đạn tối đa, chọn 25 vì để đảm bảo hiệu suất và tránh trường hợp quá nhiều đạn
+        const MAX_BULLETS = this.idTank == "BO" ? 10: 10; // Số lượng đạn tối đa, chọn 25 vì để đảm bảo hiệu suất và tránh trường hợp quá nhiều đạn
         const MAX_COLLISION_OF_NORMAL_BULLET = 0; // Số lần va chạm cho phép của đạn bình thường (0: không va chạm)
         const MAX_COLLISION_OF_COLBULLET = 3; // Số lần va chạm cho phép của đạn phản ứng khi va chạm (3: va chạm 3 lần), chọn 3 để đảm bảo hiệu suất và tránh trường hợp quá nhiều va chạm
         const RED_COLOR = "#ff0000"; // Màu đỏ, dùng cho đạn bình thường
@@ -935,6 +935,14 @@ class Game {
                     this.tanks[i].rotationTurret = angle;
                     this.tanks[i].createBullet("purpleBullet", this.tanks[i].color);
                 }
+                if (action == "specialAim"){
+                    const tankPlayer = this.tanks.find((tank) => tank.idTank !== idTank);
+                    const angle = this.utilities.calculusAngle(this.tanks[i], tankPlayer);
+                    for (let j = -3; j < 3; j++) {
+                        this.tanks[i].rotationTurret = angle + 5 * j;
+                        this.tanks[i].createBullet("purpleBullet", this.tanks[i].color);
+                    }
+                }
             }
         }
     }
@@ -1338,8 +1346,13 @@ class Game {
         }
         for (var i = 0; i < this.tanks.length; i++) {
             if (this.tanks[i].idTank === "BO") {
-                if (Math.random() > 0.95) {
-                    this.controlTank(this.tanks[i].idTank, "aim", 0);
+                if (Math.random() > 0.97) {
+                    if (Math.random() > 0.9) {
+                        this.controlTank(this.tanks[i].idTank, "aim", 0);
+                    }
+                    else{
+                        this.controlTank(this.tanks[i].idTank, "specialAim", 0);
+                    }
                 }
                 else{
                     const { bestMove, bestScore } = this.minimax(this.tanks, depth, true, -Infinity, Infinity, this.possibleMoves);
