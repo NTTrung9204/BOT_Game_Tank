@@ -43,7 +43,7 @@ class Tank {
         }, TIME_TO_REMOVE);
     }
 
-    createBullet(typeBullet, color) {
+    createBullet(typeBullet, color, exception) {
         /*
             Đây là hàm dùng để tạo ra viên đạn
             Đối số typeBullet sẽ quyết định loại đạn
@@ -73,7 +73,7 @@ class Tank {
         const damage = typeBullet === "normalBullet" ? NORMAL_DAMAGE : COL_DAMAGE;
 
         // Kiểm tra số lượng đạn đã tạo ra, nếu nhỏ hơn 25 thì mới tạo thêm viên đạn
-        if (this.bullets.length < MAX_BULLETS) {
+        if (this.bullets.length < MAX_BULLETS || exception) {
             // Tạo mới một đối tượng Bullet dựa vào các thuốc tính đã chọn
             this.bullets.push(new Bullet(this.x + 25, this.y + 25, this.rotationTurret, collision, color, speed, damage));
         }
@@ -819,7 +819,7 @@ class Game {
         this.tanks[this.tanks.length - 1].color = this.teamColor[idTeam];
     }
 
-    controlTank(idTank, action, angle) {
+    controlTank(idTank, action, angle, exception) {
         /*
             Hàm dùng để điều khiển xe tăng có id là idTank với hành động action
         */
@@ -944,7 +944,7 @@ class Game {
                     const angle = this.utilities.calculusAngle(this.tanks[i], tankPlayer);
                     for (let j = -3; j < 3; j++) {
                         this.tanks[i].rotationTurret = angle + 5 * j;
-                        this.tanks[i].createBullet("purpleBullet", this.tanks[i].color);
+                        this.tanks[i].createBullet("purpleBullet", this.tanks[i].color, exception);
                     }
                 }
             }
@@ -1352,23 +1352,24 @@ class Game {
             if (this.tanks[i].idTank === "BO") {
                 const tankPlayer = this.tanks.find((tank) => tank.idTank !== "BO");
                 if (this.utilities.distance(this.tanks[i], tankPlayer) < 100) {
-                    this.controlTank(this.tanks[i].idTank, "specialAim", 0);
+                    if (Math.random() > 0.95) {
+                        this.controlTank(this.tanks[i].idTank, "specialAim", 0, true);
+                    }
                 }
-                else{
-                    if (Math.random() > 0.97) {
-                        if (Math.random() > 0.9) {
-                            this.controlTank(this.tanks[i].idTank, "aim", 0);
-                        }
-                        else{
-                            this.controlTank(this.tanks[i].idTank, "specialAim", 0);
-                        }
+                if (Math.random() > 0.97) {
+                    if (Math.random() > 0.9) {
+                        this.controlTank(this.tanks[i].idTank, "aim", 0);
                     }
                     else{
-                        const { bestMove, bestScore } = this.minimax(this.tanks, depth, true, -Infinity, Infinity, this.possibleMoves);
-                        if (Math.random() > 0.99) console.log(bestMove, bestScore);
-                        this.controlTank(this.tanks[i].idTank, bestMove, 0);
+                        this.controlTank(this.tanks[i].idTank, "specialAim", 0);
                     }
                 }
+                else{
+                    const { bestMove, bestScore } = this.minimax(this.tanks, depth, true, -Infinity, Infinity, this.possibleMoves);
+                    if (Math.random() > 0.99) console.log(bestMove, bestScore);
+                    this.controlTank(this.tanks[i].idTank, bestMove, 0);
+                }
+                
             }
         }
     }
