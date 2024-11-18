@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xe tăng với vệt di chuyển và góc bo tròn</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"
+        integrity="sha512-g2TeAWw5GPnX7z0Kn8nFbYfeHcvAu/tx6d6mrLe/90mkCxO+RcptyYpksUz35EO337F83bZwcmUyHiHamspkfg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"
+        integrity="sha512-a+SUDuwNzXDvz4XrIcXHuCf089/iJAoN4lmrXJg18XnduKK6YlDHNRalv4yd1N40OKI80tFidF+rqTFKGPoWFQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #d3d3d3;
+        }
+
+        canvas {
+            /* height: 100%; */
+            display: inline-block;
+            border: 5px solid #000;
+            /* width: 100%; height: 100%; */
+            background-color: #d3d3d3;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script src="class_tank.js"></script>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        canvas.width = 1000;
+        canvas.height = 500;
+
+        const socketId = "abcd1234";
+        const otherSocketId = "dcba4321"
+        const anotherSocketId = "dcba1234"
+        const theOtherID = "pppppppp"
+
+        const mapGame = {
+            sideDogX: 0,
+            sideDogY: 0,
+            homeSize: 100,
+            sideCatX: canvas.width - 100,
+            sideCatY: canvas.height - 100,
+            homeDogColor: '#5678F0',
+            homeCatColor: '#EB5757',
+            wallSize: 25,
+            wallPositions: [
+                {
+                    "x": 225,
+                    "y": 0
+                },
+                {
+                    "x": 750,
+                    "y": 0
+                },
+                {
+                    "x": 925,
+                    "y": 0
+                },
+                {
+                    "x": 225,
+                    "y": 25
+                },
+                {
+                    "x": 750,
+                    "y": 25
+                },
+                {
+                    "x": 925,
+                    "y": 25
+                },
+                {
+                    "x": 300,
+                    "y": 50
+                },
+                {
+                    "x": 675,
+                    "y": 50
+                },
+                {
+                    "x": 925,
+                    "y": 50
+                },
+                {
+                    "x": 950,
+                    "y": 50
+                },
+                {
+                    "x": 975,
+                    "y": 50
+                },
+                {
+                    "x": 300,
+                    "y": 75
+                },
+                {
+                    "x": 675,
+                    "y": 75
+                },
+                {
+                    "x": 300,
+                    "y": 100
+                },
+                {
+                    "x": 675,
+                    "y": 100
+                },
+                {
+                    "x": 225,
+                    "y": 125
+                },
+                {
+                    "x": 250,
+                    "y": 125
+                },
+                {
+                    "x": 275,
+                    "y": 125
+                },
+                {
+                    "x": 300,
+                    "y": 125
+                },
+                {
+                    "x": 325,
+                    "y": 125
+                },
+                {
+                    "x": 350,
+                    "y": 125
+                },
+                {
+                    "x": 375,
+                    "y": 125
+                },
+                {
+                    "x": 400,
+                    "y": 125
+                },
+                {
+                    "x": 425,
+                    "y": 125
+                },
+                {
+                    "x": 475,
+                    "y": 125
+                },
+                {
+                    "x": 500,
+                    "y": 125
+                },
+                {
+                    "x": 525,
+                    "y": 125
+                },
+                {
+                    "x": 550,
+                    "y": 125
+                },
+                {
+                    "x": 575,
+                    "y": 125
+                },
+                {
+                    "x": 600,
+                    "y": 125
+                },
+                {
+                    "x": 625,
+                    "y": 125
+                },
+                {
+                    "x": 650,
+                    "y": 125
+                },
+                {
+                    "x": 675,
+                    "y": 125
+                },
+                {
+                    "x": 700,
+                    "y": 125
+                },
+                {
+                    "x": 725,
+                    "y": 125
+                },
+                {
+                    "x": 750,
+                    "y": 125
+                },
+                {
+                    "x": 225,
+                    "y": 150
+                },
+                {
+                    "x": 750,
+                    "y": 150
+                },
+                {
+                    "x": 225,
+                    "y": 175
+                },
+                {
+                    "x": 750,
+                    "y": 175
+                },
+                {
+                    "x": 175,
+                    "y": 200
+                },
+                {
+                    "x": 200,
+                    "y": 200
+                },
+                {
+                    "x": 225,
+                    "y": 200
+                },
+                {
+                    "x": 350,
+                    "y": 200
+                },
+                {
+                    "x": 625,
+                    "y": 200
+                },
+                {
+                    "x": 750,
+                    "y": 200
+                },
+                {
+                    "x": 775,
+                    "y": 200
+                },
+                {
+                    "x": 800,
+                    "y": 200
+                },
+                {
+                    "x": 925,
+                    "y": 200
+                },
+                {
+                    "x": 950,
+                    "y": 200
+                },
+                {
+                    "x": 975,
+                    "y": 200
+                },
+                {
+                    "x": 350,
+                    "y": 225
+                },
+                {
+                    "x": 625,
+                    "y": 225
+                },
+                {
+                    "x": 350,
+                    "y": 250
+                },
+                {
+                    "x": 625,
+                    "y": 250
+                },
+                {
+                    "x": 0,
+                    "y": 275
+                },
+                {
+                    "x": 25,
+                    "y": 275
+                },
+                {
+                    "x": 50,
+                    "y": 275
+                },
+                {
+                    "x": 175,
+                    "y": 275
+                },
+                {
+                    "x": 200,
+                    "y": 275
+                },
+                {
+                    "x": 225,
+                    "y": 275
+                },
+                {
+                    "x": 350,
+                    "y": 275
+                },
+                {
+                    "x": 625,
+                    "y": 275
+                },
+                {
+                    "x": 750,
+                    "y": 275
+                },
+                {
+                    "x": 775,
+                    "y": 275
+                },
+                {
+                    "x": 800,
+                    "y": 275
+                },
+                {
+                    "x": 225,
+                    "y": 300
+                },
+                {
+                    "x": 750,
+                    "y": 300
+                },
+                {
+                    "x": 225,
+                    "y": 325
+                },
+                {
+                    "x": 750,
+                    "y": 325
+                },
+                {
+                    "x": 225,
+                    "y": 350
+                },
+                {
+                    "x": 250,
+                    "y": 350
+                },
+                {
+                    "x": 275,
+                    "y": 350
+                },
+                {
+                    "x": 300,
+                    "y": 350
+                },
+                {
+                    "x": 325,
+                    "y": 350
+                },
+                {
+                    "x": 350,
+                    "y": 350
+                },
+                {
+                    "x": 375,
+                    "y": 350
+                },
+                {
+                    "x": 400,
+                    "y": 350
+                },
+                {
+                    "x": 425,
+                    "y": 350
+                },
+                {
+                    "x": 450,
+                    "y": 350
+                },
+                {
+                    "x": 475,
+                    "y": 350
+                },
+                {
+                    "x": 500,
+                    "y": 350
+                },
+                {
+                    "x": 525,
+                    "y": 350
+                },
+                {
+                    "x": 550,
+                    "y": 350
+                },
+                {
+                    "x": 575,
+                    "y": 350
+                },
+                {
+                    "x": 600,
+                    "y": 350
+                },
+                {
+                    "x": 625,
+                    "y": 350
+                },
+                {
+                    "x": 650,
+                    "y": 350
+                },
+                {
+                    "x": 675,
+                    "y": 350
+                },
+                {
+                    "x": 700,
+                    "y": 350
+                },
+                {
+                    "x": 725,
+                    "y": 350
+                },
+                {
+                    "x": 750,
+                    "y": 350
+                },
+                {
+                    "x": 300,
+                    "y": 375
+                },
+                {
+                    "x": 675,
+                    "y": 375
+                },
+                {
+                    "x": 300,
+                    "y": 400
+                },
+                {
+                    "x": 675,
+                    "y": 400
+                },
+                {
+                    "x": 0,
+                    "y": 425
+                },
+                {
+                    "x": 25,
+                    "y": 425
+                },
+                {
+                    "x": 50,
+                    "y": 425
+                },
+                {
+                    "x": 300,
+                    "y": 425
+                },
+                {
+                    "x": 675,
+                    "y": 425
+                },
+                {
+                    "x": 50,
+                    "y": 450
+                },
+                {
+                    "x": 225,
+                    "y": 450
+                },
+                {
+                    "x": 750,
+                    "y": 450
+                },
+                {
+                    "x": 50,
+                    "y": 475
+                },
+                {
+                    "x": 225,
+                    "y": 475
+                },
+                {
+                    "x": 750,
+                    "y": 475
+                },
+                {
+                    "x": 225,
+                    "y": 125
+                },
+                {
+                    "x": 250,
+                    "y": 125
+                },
+                {
+                    "x": 275,
+                    "y": 125
+                },
+                {
+                    "x": 300,
+                    "y": 125
+                },
+                {
+                    "x": 325,
+                    "y": 125
+                },
+                {
+                    "x": 350,
+                    "y": 125
+                },
+                {
+                    "x": 375,
+                    "y": 125
+                },
+                {
+                    "x": 400,
+                    "y": 125
+                },
+                {
+                    "x": 425,
+                    "y": 125
+                },
+                {
+                    "x": 450,
+                    "y": 125
+                },
+                {
+                    "x": 475,
+                    "y": 125
+                },
+                {
+                    "x": 500,
+                    "y": 125
+                },
+                {
+                    "x": 525,
+                    "y": 125
+                },
+                {
+                    "x": 550,
+                    "y": 125
+                },
+                {
+                    "x": 575,
+                    "y": 125
+                },
+                {
+                    "x": 600,
+                    "y": 125
+                },
+                {
+                    "x": 625,
+                    "y": 125
+                },
+                {
+                    "x": 650,
+                    "y": 125
+                },
+                {
+                    "x": 675,
+                    "y": 125
+                },
+                {
+                    "x": 750,
+                    "y": 350
+                },
+                {
+                    "x": 750,
+                    "y": 125
+                },
+                {
+                    "x": 725,
+                    "y": 125
+                },
+                {
+                    "x": 700,
+                    "y": 125
+                },
+                {
+                    "x": 225,
+                    "y": 350
+                },
+                {
+                    "x": 250,
+                    "y": 350
+                },
+                {
+                    "x": 275,
+                    "y": 350
+                },
+                {
+                    "x": 300,
+                    "y": 350
+                },
+                {
+                    "x": 325,
+                    "y": 350
+                },
+                {
+                    "x": 350,
+                    "y": 350
+                },
+                {
+                    "x": 375,
+                    "y": 350
+                },
+                {
+                    "x": 400,
+                    "y": 350
+                },
+                {
+                    "x": 425,
+                    "y": 350
+                },
+                {
+                    "x": 450,
+                    "y": 350
+                },
+                {
+                    "x": 475,
+                    "y": 350
+                },
+                {
+                    "x": 500,
+                    "y": 350
+                },
+                {
+                    "x": 525,
+                    "y": 350
+                },
+                {
+                    "x": 550,
+                    "y": 350
+                },
+                {
+                    "x": 575,
+                    "y": 350
+                },
+                {
+                    "x": 600,
+                    "y": 350
+                },
+                {
+                    "x": 625,
+                    "y": 350
+                },
+                {
+                    "x": 650,
+                    "y": 350
+                },
+                {
+                    "x": 675,
+                    "y": 350
+                },
+                {
+                    "x": 700,
+                    "y": 350
+                },
+                {
+                    "x": 725,
+                    "y": 350
+                },
+                {
+                    "x": 750,
+                    "y": 275
+                },
+                {
+                    "x": 750,
+                    "y": 300
+                },
+                {
+                    "x": 750,
+                    "y": 325
+                },
+                {
+                    "x": 750,
+                    "y": 150
+                },
+                {
+                    "x": 750,
+                    "y": 175
+                },
+                {
+                    "x": 750,
+                    "y": 200
+                },
+                {
+                    "x": 225,
+                    "y": 150
+                },
+                {
+                    "x": 225,
+                    "y": 175
+                },
+                {
+                    "x": 225,
+                    "y": 200
+                },
+                {
+                    "x": 225,
+                    "y": 275
+                },
+                {
+                    "x": 225,
+                    "y": 300
+                },
+                {
+                    "x": 225,
+                    "y": 325
+                },
+                {
+                    "x": 300,
+                    "y": 75
+                },
+                {
+                    "x": 300,
+                    "y": 100
+                },
+                {
+                    "x": 675,
+                    "y": 75
+                },
+                {
+                    "x": 675,
+                    "y": 100
+                },
+                {
+                    "x": 300,
+                    "y": 50
+                },
+                {
+                    "x": 675,
+                    "y": 50
+                },
+                {
+                    "x": 300,
+                    "y": 375
+                },
+                {
+                    "x": 300,
+                    "y": 400
+                },
+                {
+                    "x": 300,
+                    "y": 425
+                },
+                {
+                    "x": 675,
+                    "y": 375
+                },
+                {
+                    "x": 675,
+                    "y": 400
+                },
+                {
+                    "x": 675,
+                    "y": 425
+                },
+                {
+                    "x": 350,
+                    "y": 200
+                },
+                {
+                    "x": 350,
+                    "y": 225
+                },
+                {
+                    "x": 350,
+                    "y": 250
+                },
+                {
+                    "x": 625,
+                    "y": 200
+                },
+                {
+                    "x": 625,
+                    "y": 225
+                },
+                {
+                    "x": 625,
+                    "y": 250
+                },
+                {
+                    "x": 350,
+                    "y": 275
+                },
+                {
+                    "x": 625,
+                    "y": 275
+                },
+                {
+                    "x": 0,
+                    "y": 425
+                },
+                {
+                    "x": 25,
+                    "y": 425
+                },
+                {
+                    "x": 50,
+                    "y": 425
+                },
+                {
+                    "x": 50,
+                    "y": 450
+                },
+                {
+                    "x": 50,
+                    "y": 475
+                },
+                {
+                    "x": 925,
+                    "y": 0
+                },
+                {
+                    "x": 925,
+                    "y": 25
+                },
+                {
+                    "x": 925,
+                    "y": 50
+                },
+                {
+                    "x": 950,
+                    "y": 50
+                },
+                {
+                    "x": 975,
+                    "y": 50
+                },
+                {
+                    "x": 975,
+                    "y": 200
+                },
+                {
+                    "x": 950,
+                    "y": 200
+                },
+                {
+                    "x": 925,
+                    "y": 200
+                },
+                {
+                    "x": 0,
+                    "y": 275
+                },
+                {
+                    "x": 25,
+                    "y": 275
+                },
+                {
+                    "x": 50,
+                    "y": 275
+                },
+                {
+                    "x": 750,
+                    "y": 0
+                },
+                {
+                    "x": 750,
+                    "y": 25
+                },
+                {
+                    "x": 225,
+                    "y": 0
+                },
+                {
+                    "x": 225,
+                    "y": 25
+                },
+                {
+                    "x": 225,
+                    "y": 450
+                },
+                {
+                    "x": 225,
+                    "y": 475
+                },
+                {
+                    "x": 750,
+                    "y": 450
+                },
+                {
+                    "x": 750,
+                    "y": 475
+                },
+                {
+                    "x": 775,
+                    "y": 200
+                },
+                {
+                    "x": 800,
+                    "y": 200
+                },
+                {
+                    "x": 800,
+                    "y": 275
+                },
+                {
+                    "x": 775,
+                    "y": 275
+                },
+                {
+                    "x": 175,
+                    "y": 200
+                },
+                {
+                    "x": 200,
+                    "y": 200
+                },
+                {
+                    "x": 200,
+                    "y": 275
+                },
+                {
+                    "x": 175,
+                    "y": 275
+                }
+            ]
+        }
+        const myGame = new Game(canvas);
+        myGame.setMap(mapGame);
+
+        myGame.addTank(socketId, 100, 100, 1);
+        // myGame.addTank(otherSocketId, 200, 200, "BO");
+        // myGame.addTank(anotherSocketId, 300, 300, "BO");
+        myGame.addTank("BO", 400, 400, "BO");
+        // myGame.addTank(theOtherID, 400, 400, "BOT");
+
+        console.log(myGame.tanks);
+
+
+
+        const keysPressed = {};
+        document.addEventListener('keydown', (event) => {
+            keysPressed[event.key] = true;
+        });
+
+        document.addEventListener('keyup', (event) => {
+            if (keysPressed[' '] && event.key === ' ') {
+                // console.log(getSizeData(myGame.tanks))
+                
+                sendData(socketId, "fire");
+            }
+            keysPressed[event.key] = false;
+        });
+
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = event.clientX - rect.left;
+            mouseY = event.clientY - rect.top;
+            myGame.changeRotationTurret(socketId, {
+                x: mouseX,
+                y: mouseY,
+            })
+        });
+
+        // const movementMode = "rotateMode";
+        const movementMode = "freeMode";
+
+        function move() {
+            if (keysPressed['w']) {
+                if (movementMode === "rotateMode") {
+                    sendData(socketId, "moveForward");
+                }
+                if (movementMode === "freeMode") {
+                    sendData(socketId, "moveHead");
+                }
+            }
+            if (keysPressed['s']) {
+                if (movementMode === "rotateMode") {
+                    sendData(socketId, "moveBackward");
+                }
+                if (movementMode === "freeMode") {
+                    sendData(socketId, "moveBack");
+                }
+            }
+            if (keysPressed['a']) {
+                if (movementMode === "rotateMode") {
+                    sendData(socketId, "rotateLeft");
+                }
+                if (movementMode === "freeMode") {
+                    sendData(socketId, "moveLeft");
+                }
+            }
+            if (keysPressed['d']) {
+                if (movementMode === "rotateMode") {
+                    sendData(socketId, "rotateRight");
+                }
+                if (movementMode === "freeMode") {
+                    sendData(socketId, "moveRight");
+                }
+            }
+
+
+            // requestAnimationFrame(move)
+        }
+
+        // move()
+        setInterval(() => {
+            // console.log(getSizeData((encodeData(myGame.tanks))))
+            move()
+        }, 1000 / 150);
+
+        function sendData(socketId, action) {
+            getControl(socketId, action);
+        }
+
+        function getControl(socketId, action) {
+            myGame.controlTank(socketId, action);
+        }
+
+        setInterval(() => {
+            myGame.updateState();
+            // const dataString = JSON.stringify(myGame.tanks);
+            // const dataSize = new TextEncoder().encode(dataString).length;
+
+            // console.log(`Kích thước dữ liệu gửi đi: ${dataSize} bytes`);
+        }, 10);
+
+        function getSizeData(data) {
+            const dataString = JSON.stringify(data);
+            const dataSize = new TextEncoder().encode(dataString).length;
+            // return dataSize;
+            // console.log(`Kích thước dữ liệu gửi đi: ${dataSize} bytes`);
+
+            return dataSize;
+        }
+
+        function encodeData(data) {
+            const jsonData = JSON.stringify(data);
+            const compressedData = pako.deflate(jsonData);
+            const base64Compressed = btoa(String.fromCharCode(...compressedData));
+            getSizeData(base64Compressed)
+
+            return base64Compressed;
+        }
+
+        function decodedData(data) {
+            const decodedData = Uint8Array.from(atob(data), c => c.charCodeAt(0));
+            const decompressedData = pako.inflate(decodedData, { to: 'string' });
+            const originalData = JSON.parse(decompressedData);
+            getSizeData(originalData)
+
+            return originalData;
+        }
+
+        function generateFakeData() {
+            const listData = [];
+            for (let i = 0; i < 1000; i++) {
+                myGame.tanks[1].x = Math.floor(Math.random() * 1000);
+                myGame.tanks[1].y = Math.floor(Math.random() * 500);
+                const base64Compressed = encodeData(myGame.tanks);
+                listData.push({
+                    timeStamps: new Date().getTime() + i * 1000,
+                    data: base64Compressed
+                });
+            }
+            return listData;
+        }
+
+    </script>
+</body>
+
+</html>
